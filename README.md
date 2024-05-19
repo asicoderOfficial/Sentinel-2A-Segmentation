@@ -56,6 +56,6 @@ Create a pipeline that constructs training data based on latitude-longitude coor
 
 1. **Clone the repository:**
    ```bash
-   git clone https://github.com/yourusername/amls-project.git
+   git clone .git
    cd amls-project
    ```
