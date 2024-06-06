@@ -1,0 +1,11 @@
+openeo
+requests
+shapely
+pandas
+geopandas
+numpy
+rasterio
+pyrosm
+sentinelhub
+python-dotenv
+imageio
