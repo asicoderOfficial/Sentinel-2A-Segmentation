@@ -107,3 +107,5 @@ for city in cities:
     store_patches(city_data, buildings_data, patches_save_dir, city_name, side_sizes=patches_side_sizes, stride=patches_stride)
     if verbose:
         logging.info(f"Finished extracting patches from the images for {city_name}. Find them in {patches_save_dir}/, each city has a subdirectory, and all patches are merged together in a single file, called buildings.npy or city.npy")
+
+os.remove('tmp')
