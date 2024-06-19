@@ -10,9 +10,20 @@ from PIL import Image
 class OSM:
     """ Class to interact with OpenStreetMaps data."""
 
-    def __init__(self, imgs_tmp_folder:str, imgs_tmp_extension:str) -> None:
+    def __init__(self, imgs_tmp_folder:str='', imgs_tmp_extension:str='') -> None:
+        """ Initializes the OSM object.
+
+        Args:
+            imgs_tmp_folder (str, optional): Where to save the temporary images, which will later be removed. Defaults to ''.
+            imgs_tmp_extension (str, optional): With which extension to save them. Defaults to ''.
+
+        Returns:
+            None
+        """        
         self.imgs_tmp_folder = imgs_tmp_folder
         self.imgs_tmp_extension = imgs_tmp_extension
+        if not os.path.exists(f"./{imgs_tmp_folder}"):
+            os.makedirs(f"./{imgs_tmp_folder}")
         self.fp = f"./{self.imgs_tmp_folder}/osm_buildings.{self.imgs_tmp_extension}"
 
 
@@ -57,10 +68,13 @@ class OSM:
         buildings_img = self._load_raw_img(dimensions=dimensions)
 
         if buildings_img.mode == 'RGBA':
-            # Remove the alpha channel (transparency)
-            buildings_img = buildings_img.convert('RGB')
+            # Convert to grayscale
+            buildings_img = buildings_img.convert('L')
 
         buildings_img = np.array(buildings_img)
+        if buildings_img.ndim == 3:
+            # remove the 1st dimension, as it is not needed
+            buildings_img = buildings_img[0]
 
         buildings_img[buildings_img < 50] = 0
         buildings_img[buildings_img >= 50] = 255
@@ -93,3 +107,32 @@ class OSM:
         os.remove(self.fp)
         if img_name:
             img.save(f'./{self.imgs_tmp_folder}/{img_name}.{self.imgs_tmp_extension}')
+
+
+    @staticmethod
+    def city_bbox(city:str, format:str='osm') -> tuple:
+        """ Get the bounding box of a city.
+
+        Args:
+            city (str): City name (for example, 'Berlin').
+            format (str, optional): The format in which to return the bounding box. Defaults to 'osm' (OpenStreetMaps format). It can also be 'sentinel' (SentinelHub format).
+                - OpenStreetMaps format: (north, south, east, west)
+                - SentinelHub format: (west, south, east, north)
+
+        Raises:
+            ValueError: If the format is not 'osm' or 'sentinel'.
+
+        Returns:
+            tuple: Bounding box of the city in the format specified.
+        """        
+        if format not in ['osm', 'sentinel']: raise ValueError("Format must be 'osm' or 'sentinel', for OpenStreetMaps or SentinelHub format, respectively.")
+
+        gdf = ox.geocode_to_gdf(city)
+        
+        bounds = gdf.total_bounds
+        north, south, east, west = bounds[3], bounds[1], bounds[2], bounds[0]
+    
+        if format == 'osm':
+            return north, south, east, west
+        elif format == 'sentinel':
+            return west, south, east, north
