@@ -58,23 +58,34 @@ class SentinelHubImageDownloader:
         self._time_interval = value
 
 
-    def download_image(self) -> List[np.ndarray]:
+    def download_image(self, extension:str='TIFF') -> List[np.ndarray]:
         """ Downloads the image data from the SentinelHub API, depending on the class properties.
+
+        Args:
+            extension (str, optional): The file extension of the image to download. Defaults to 'TIFF'. Allowed values are 'TIFF' and 'PNG'.
+                Use PNG when downloading an image for visualization purposes (RGB bands). 
+                Use TIFF when downloading an image for processing purposes (all 13 bands usually).
 
         Returns:
             List[np.ndarray]: A list of numpy arrays, each representing an image band.
         """        
+        if extension == 'TIFF':
+            mime_type = MimeType.TIFF
+        elif extension == 'PNG':
+            mime_type = MimeType.PNG
+        else:
+            raise ValueError("Only TIFF and PNG extensions are supported.")
+
         request = SentinelHubRequest(
             evalscript=self.evalscript,
             input_data=[
                 SentinelHubRequest.input_data(
                     data_collection=DataCollection.SENTINEL2_L2A,
                     time_interval=self.time_interval,
-                    maxcc=self.max_cloud_coverage / 100.0,
-                    
+                    maxcc=self.max_cloud_coverage / 100.0
                 )
             ],
-            responses=[SentinelHubRequest.output_response("default", MimeType.PNG)],
+            responses=[SentinelHubRequest.output_response("default", mime_type)],
             bbox=self.bbox,
             size=self.size,
             config=self.config,
