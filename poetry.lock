@@ -827,6 +827,14 @@ optional = false
 python-versions = "*"
 
 [[package]]
+name = "pyyaml"
+version = "6.0.1"
+description = "YAML parser and emitter for Python"
+category = "main"
+optional = false
+python-versions = ">=3.6"
+
+[[package]]
 name = "pyzmq"
 version = "26.0.3"
 description = "Python bindings for 0MQ"
@@ -1123,7 +1131,7 @@ test = ["pytest (>=6,<8.1.0 || >=8.2.0)", "pytest-checkdocs (>=2.4)", "pytest-co
 [metadata]
 lock-version = "1.1"
 python-versions = "^3.9"
-content-hash = "2a31682e059145933ab635357c73072e4675250f67c7b59f19e37333487b1200"
+content-hash = "fc92f343b5e411288ac938a3490aaa3cfc5a34406c61d49bbf950196c7f34eef"
 
 [metadata.files]
 aenum = []
@@ -1186,6 +1194,7 @@ python-dateutil = []
 python-dotenv = []
 pytz = []
 pywin32 = []
+pyyaml = []
 pyzmq = []
 rasterio = []
 requests = []
