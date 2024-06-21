@@ -1,7 +1,6 @@
 import torch
 
 
-
 class DiceCoefficient:
     @staticmethod
     def compute_dice(predicted: torch.Tensor, target: torch.Tensor) -> float:
@@ -22,11 +21,12 @@ class DiceCoefficient:
 
         # If a pixel has a probability greater than 0.5, it is considered as a building (label 1), if not, it is considered as background (label 0)
         predicted_labels = predicted > 0.5
+        predicted_labels = predicted_labels.int()
 
-        intersection = torch.sum(predicted_labels * target).float()
-        union = torch.sum(predicted_labels).float() + torch.sum(target).float()
+        intersection = torch.eq(predicted_labels, target).sum().float()
+        union = predicted_labels.numel()
 
-        dice = (2.0 * intersection.item()) / (union.item())
+        dice = (intersection / union).item() if union != 0 else 0.0
 
         # For floating point errors
         if dice > 1.0:
@@ -35,4 +35,4 @@ class DiceCoefficient:
             dice = 0.0
 
         return dice
-    
+        
