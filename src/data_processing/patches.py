@@ -99,9 +99,8 @@ def store_patches(city:np.array, buildings:np.array, dir:str, city_id:str, side_
                             curr_aug = AUGMENTATIONS_DECODER[augmentation_name](**augmentation['parameters'])
                         # Apply it
                         augmented_city_patch = curr_aug(city_patch)
-                        augmented_buildings_patch = curr_aug(buildings_patch)
                         city_patches.append(augmented_city_patch)
-                        buildings_patches.append(augmented_buildings_patch)
+                        buildings_patches.append(buildings_patch)
                     else:
                         raise ValueError(f"Augmentation {augmentation['name']} not found in the decoder.")
     
