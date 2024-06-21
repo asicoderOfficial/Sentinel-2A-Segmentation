@@ -40,8 +40,7 @@ resolution = data_pipeline_config['sentinel']['resolution']
 max_cloud_coverage = data_pipeline_config['sentinel']['max_cloud_coverage']
 evalscript = EVALSCRIPTS[data_pipeline_config['sentinel']['evalscript']]
 cities = data_pipeline_config['cities']
-patches_side_sizes = data_pipeline_config['patches']['sizes']
-patches_stride = data_pipeline_config['patches']['stride']
+patches = data_pipeline_config['patches']
 patches_save_dir = data_pipeline_config['patches']['save_dir']
 verbose = data_pipeline_config['verbose']
 
@@ -104,7 +103,11 @@ for city in cities:
     # Extract patches from the images and save them
     if verbose:
         logging.info(f"Extracting patches from the images for {city_name}")
-    store_patches(city_data, buildings_data, patches_save_dir, city_name, side_sizes=patches_side_sizes, stride=patches_stride)
+    for patch in patches:
+        patch_side_size = patch['size']
+        patch_stride = patch['stride']
+        patch_augmentations = patch['augmentations']
+        store_patches(city_data, buildings_data, patches_save_dir, city_name, patch_side_size, stride=patch_stride)
     if verbose:
         logging.info(f"Finished extracting patches from the images for {city_name}. Find them in {patches_save_dir}/, each city has a subdirectory, and all patches are merged together in a single file, called buildings.npy or city.npy")
 

@@ -61,10 +61,16 @@ sentinel:
   max_cloud_coverage: 5
   evalscript: ALL
 patches:
-  sizes:
-    - 32
-    - 64
-    - 128
+  - size: 32
+    stride: 6
+    augmentations: {}
+  - size: 64
+    stride: 12
+    augmentations: {}
+  - size: 128
+    stride: 24
+    augmentations: {}
   stride: 4
   save_dir: data
+
 verbose: true
