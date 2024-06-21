@@ -1,4 +1,5 @@
 import os
+from logging import Logger
 
 import torch
 import torch.nn as nn
@@ -16,7 +17,7 @@ from src.ml.logs.plots import TrainingPlots
 class Run:
     def __init__(self, id: str, train_dataset: SentinelDataset, model: nn.Module, criterion, optimizer: torch, 
                  train_percentage: float=0.7, trainer_hyperparameters: dict={'epochs': 20}, model_hyperparameters: dict={'batch_size': 16, 'learning_rate': 0.001},
-                 device:torch.device=torch.device('cuda'), test_dataset: SentinelDataset=None, verbose: bool=False) -> None:
+                 device:torch.device=torch.device('cuda'), test_dataset: SentinelDataset=None, verbose: bool=False, logger:Logger=None) -> None:
         """ To run an experiment.
 
         Args:
@@ -31,6 +32,7 @@ class Run:
             device (torch.device, optional): The device to use. Defaults to torch.device('cuda').
             test_dataset (SentinelDataset, optional): The testing dataset (for inference, no labels). Defaults to None.
             verbose (bool, optional): Whether to print information of the run. Defaults to False.
+            logger (Logger, optional): The logger to use. Defaults to None.
 
         Returns:
             None
@@ -46,13 +48,14 @@ class Run:
         self.device = device
         self.test_dataset = test_dataset
         self.verbose = verbose
+        self.logger = logger
 
         self.run_info_dir = f'{EXPERIMENTS_SAVE_DIR}/{self.id}'
 
         self._dataloaders()
         self._directories()
 
-        if self.device.type != 'cuda':
+        if self.device.type != 'cuda' and verbose:
             print('WARNING: You are not using CUDA, are you sure you want to continue? Training may be very slow.')
 
         if self.verbose:
@@ -64,6 +67,16 @@ class Run:
             print('------------------------')
             print()
 
+            self.logger.info(
+                f'''
+                ------------------------
+                Experiment id: {self.id}
+                Run information directory: {self.run_info_dir}
+                Training information directory: {self.run_info_dir}/train
+                Testing information directory: {self.run_info_dir}/test
+                ------------------------
+                '''
+                )
 
 
     def run(self) -> None:
@@ -73,28 +86,37 @@ class Run:
             None
         """        
         if self.verbose:
-            print('Starting experiment training...')
-            print(f'Using {self.device} device')
-            print(f'Model: {self.model.__class__.__name__}, criterion: {self.criterion.__class__.__name__}, optimizer: {self.optimizer.__class__.__name__}')
-            print(f'Number of training samples: {len(self.train_dataset)}, number of validation samples: {len(self.val_loader.dataset)}')
-            print(f'Training hyperparameters: {self.trainer_hyperparameters}')
-            print(f'Model hyperparameters: {self.model_hyperparameters}')
-            print()
+            self.logger.info(
+                f'''
+                Starting experiment training...
+                Using {self.device} device
+                Model: {self.model.__class__.__name__}, criterion: {self.criterion.__class__.__name__}, optimizer: {self.optimizer.__class__.__name__}
+                Number of training samples: {len(self.train_dataset)}, number of validation samples: {len(self.val_loader.dataset)}
+                Training hyperparameters: {self.trainer_hyperparameters}
+                Model hyperparameters: {self.model_hyperparameters}
+                '''
+            )
         # Train
         self.trainer = Trainer(self.model, self.criterion, self.optimizer, self.train_loader, self.val_loader, 
-                               self.run_info_dir, test_dataloader=self.test_loader, device=self.device)
+                               self.run_info_dir, test_dataloader=self.test_loader, device=self.device, logger=self.logger)
         epoch_losses, train_dice_metrics, val_dice_metrics, train_time_by_epoch = self.trainer.train(**self.trainer_hyperparameters)
 
         if self.verbose:
-            print()
-            print('Experiment training finished.')
-            print()
+            self.logger.info(
+                f'''
+                Finished training.
+                '''
+            )
 
         # Test
         # TODO: Implement testing (if needed)
 
         if self.verbose:
-            print('Storing training information...')
+            self.logger.info(
+                f'''
+                Starting to store training information...
+                '''
+            )
         # YML
         Logger.run_yml(self.run_info_dir, self.id, self.train_percentage, len(self.train_dataset), len(self.val_loader.dataset), self.model, self.criterion, self.optimizer, 
                        self.trainer_hyperparameters, self.model_hyperparameters, self.device)
@@ -104,20 +126,18 @@ class Run:
         val_epoch_dice_df = Logger.store_by_epoch_data(val_dice_metrics, info_dir=f'{self.run_info_dir}/train/logs', file_name='dice_val')
         train_time_by_epoch_df = Logger.store_by_epoch_data(train_time_by_epoch, info_dir=f'{self.run_info_dir}/train/logs', file_name='time_by_epoch', prefix='')
 
-        if self.verbose:
-            print('Storing training plots...')
         # Plots
         TrainingPlots.loss_by_epoch(epoch_loss_df, f'{self.run_info_dir}/train/plots')
         TrainingPlots.dice_by_epoch(train_epoch_dice_df, val_epoch_dice_df, f'{self.run_info_dir}/train/plots')
         TrainingPlots.time_by_epoch(train_time_by_epoch_df, f'{self.run_info_dir}/train/plots')
 
         if self.verbose:
-            print()
-            print(f'Experiment {self.id} finished.')
-            print(f'Check the logs, plots, checkpoints & yml configuration file at {self.run_info_dir}')
-            print()
-            print()
-            print()
+            self.logger.info(
+                f'''
+                Experiment {self.id} finished.
+                Check the logs, plots, checkpoints & yml configuration file at {self.run_info_dir}
+                '''
+            )
 
 
     def _dataloaders(self) -> None:
