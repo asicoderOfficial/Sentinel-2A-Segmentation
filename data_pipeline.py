@@ -24,7 +24,8 @@ main_dir = os.getcwd()
 sentinel_config = SHConfig()
 with open(f'{main_dir}/config/data_pipeline.yml', 'r') as file:
     data_pipeline_config = yaml.load(file, Loader=yaml.FullLoader)
-load_dotenv(f'{main_dir}/config/.env.local')
+
+load_dotenv(f'{main_dir}/{data_pipeline_config["env_file"]}')
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
 
 
@@ -107,7 +108,7 @@ for city in cities:
         patch_side_size = patch['size']
         patch_stride = patch['stride']
         patch_augmentations = patch['augmentations']
-        store_patches(city_data, buildings_data, patches_save_dir, city_name, patch_side_size, stride=patch_stride)
+        store_patches(city_data, buildings_data, patches_save_dir, city_name, patch_side_size, stride=patch_stride, augmentations=patch_augmentations)
     if verbose:
         logging.info(f"Finished extracting patches from the images for {city_name}. Find them in {patches_save_dir}/, each city has a subdirectory, and all patches are merged together in a single file, called buildings.npy or city.npy")
 

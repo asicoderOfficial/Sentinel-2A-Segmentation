@@ -1,9 +1,8 @@
 import os
-from typing import Union
 
 import numpy as np
 
-from src.data_processing.constants import PATCHES_DEFAULT_SIZES
+from src.data_processing.constants import AUGMENTATIONS_DECODER
 
 
 def _pad(city: np.array, buildings: np.array, side_size: int, stride: int):
@@ -41,7 +40,7 @@ def _pad(city: np.array, buildings: np.array, side_size: int, stride: int):
     return city_padded, buildings_padded
 
 
-def store_patches(city:np.array, buildings:np.array, dir:str, city_id:str, side_size:int, stride:int=1):
+def store_patches(city:np.array, buildings:np.array, dir:str, city_id:str, side_size:int, stride:int=1, augmentations:list=[]):
     """ Given a city and its buildings, it extracts patches as square parts, with a specified stride and side size, and stores them in a directory, together with the corresponding labels (building or not building).
 
     Important: it assumes that city is 3D (ndim = 3) and buildings is 2D (ndim = 2) and they have a [C, H, W] and [H, W] shape respectively, 
@@ -89,6 +88,22 @@ def store_patches(city:np.array, buildings:np.array, dir:str, city_id:str, side_
             if not city_patch[12, :, :].any():
                 city_patches.append(city_patch)
                 buildings_patches.append(buildings_patch)
+                # Apply the transformations to augment the dataset
+                for augmentation in augmentations:
+                    augmentation_name = augmentation['name']
+                    if augmentation_name in AUGMENTATIONS_DECODER:
+                        if augmentation_name == 'compose':
+                            # Compose multiple augmentations
+                            curr_aug = [AUGMENTATIONS_DECODER[aug['name']](**aug['parameters']) for aug in augmentation['augmentations']]
+                        else:
+                            curr_aug = AUGMENTATIONS_DECODER[augmentation_name](**augmentation['parameters'])
+                        # Apply it
+                        augmented_city_patch = curr_aug(city_patch)
+                        augmented_buildings_patch = curr_aug(buildings_patch)
+                        city_patches.append(augmented_city_patch)
+                        buildings_patches.append(augmented_buildings_patch)
+                    else:
+                        raise ValueError(f"Augmentation {augmentation['name']} not found in the decoder.")
     
     # Save all patches together
     city_patches = np.array(city_patches)

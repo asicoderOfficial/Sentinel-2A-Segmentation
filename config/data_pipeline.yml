@@ -63,7 +63,21 @@ sentinel:
 patches:
   - size: 32
     stride: 6
-    augmentations: {}
+    augmentations: 
+      - name: flip
+        parameters:
+          p: 0.5
+      - name: rotate
+        parameters:
+          p: 0.5
+      - name: compose
+        augmentations:
+          - name: flip
+            parameters:
+              p: 0.5
+          - name: rotate
+            parameters:
+              p: 0.5
   - size: 64
     stride: 12
     augmentations: {}
