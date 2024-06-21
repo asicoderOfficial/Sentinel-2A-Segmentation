@@ -92,7 +92,6 @@ for curr_train_percentage in train_percentages:
                             train_percentage=curr_train_percentage, trainer_hyperparameters=trainer_hyperparameters, model_hyperparameters=model_hyperparameters,
                             device=device, verbose=verbose, logger=logger)
                     r.run()
-                    exit()
 
                 except KeyboardInterrupt:
                     # Allow keyboard interrupts such as CTRL+C to stop the execution
