@@ -1,0 +1,44 @@
+# General configuration
+device: cuda
+seed: 42
+verbose: true
+# Model
+model: 
+  name: UNet
+  parameters:
+    in_channels: 13
+    out_channels: 1
+loss: 
+  name: BCEWithLogits
+  parameters: {}
+optimizer:
+  name: Adam
+  parameters:
+    lr: 0.001
+    weight_decay: 0.0001
+# Training
+train:
+  mode:
+    name: density
+    perc: [0.7, 0.8]
+  data_dir: data/Berlin
+  hyperparameters:
+    mode: manual
+    batch_size: [16, 32]
+    epochs: [50, 100]
+    lr: [0.1, 0.001]
+  early_stopping:
+    delta: 0.01
+    patience: 4
+# Validation
+val:
+  metrics:
+    - name: Dice
+  threshold: 0.5
+# Test
+test:
+  data_dir: data/test
+  threshold: 0.5
+# Logging and plotting
+logging:
+  dir: logs
