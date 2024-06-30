@@ -55,7 +55,29 @@ Create a pipeline that constructs training data based on latitude-longitude coor
 ### Setup
 
 1. **Clone the repository:**
+
    ```bash
-   git clone .git
-   cd amls-project
+   git clone git@github.com:asicoderOfficial/Sentinel-2A-Segmentation.git
+   cd Sentinel-2A-Segmentation
+
    ```
+
+2. ## Prerequisites
+
+   Before running the project, make sure you have the following prerequisites installed:
+
+3. **Poetry**: Install Poetry by following the instructions in the [official documentation](https://python-poetry.org/docs/#installation).
+
+## Configuration
+
+Ensure that you have set up the necessary configurations by checking the `config/env.local` file.
+
+## Running the Project
+
+To run the project, execute the following command:
+
+```bash
+poetry run python -m experiment
+```
+
+Make sure you are in the root directory of the cloned repository before running the command.
