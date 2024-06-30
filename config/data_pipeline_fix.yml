@@ -1,0 +1,90 @@
+
+env_file: .env.local
+cities:
+  - name: Berlin
+    north: 52.574409
+    south: 52.454927
+    west: 13.294333
+    east: 13.500205
+  - name: London
+    north: 51.580483
+    south: 51.403061
+    east: 0.037079
+    west: -0.265732
+  - name: Madrid
+    north: 40.522412
+    south: 40.334507
+    east: -3.564034
+    west: -3.803673
+  - name: Paris
+    north: 48.95813
+    south: 48.738984
+    east: 2.51
+    west: 2.18089
+  - name: Delhi
+    north: 28.716485
+    south: 28.512143
+    east: 77.32199
+    west: 77.074585
+  - name: Tokyo
+    north: 35.74707
+    south: 35.586968
+    east: 139.843597
+    west: 139.580612
+  - name: Cairo
+    north: 30.139783
+    south: 29.93292
+    east: 31.370225
+    west: 31.116714
+  - name: Moscow
+    north: 55.862212
+    south: 55.636365
+    east: 37.825928
+    west: 37.45454
+  - name: Mexico City
+    north: 19.520964
+    south: 19.324427
+    east: -99.032478
+    west: -99.243965
+  - name: Nairobi
+    north: -1.20772
+    south: -1.396499
+    east: 36.922989
+    west: 36.730728
+  - name: Sydney
+    north: -33.787137
+    south: -34.006518
+    east: 151.290321
+    west: 151.029396
+sentinel:
+  resolution: 10
+  max_cloud_coverage: 5
+  evalscript: ALL
+patches: 
+- size: 32
+  stride: 6
+  augmentations: 
+    - name: flip
+      parameters: 
+          p: 0.5
+    - name: rotate
+      parameters:
+          p: 0.5
+    - name: compose
+      augmentations:
+        - name: flip
+          parameters:
+              p: 0.5
+        - name: rotate
+          parameters:
+              p: 0.5
+- size: 64
+  stride: 12
+  augmentations: {}
+- size: 128
+  stride: 24
+  augmentations: {}
+  stride: 4
+  save_dir: data
+
+verbose: true
