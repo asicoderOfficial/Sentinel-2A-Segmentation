@@ -42,7 +42,7 @@ max_cloud_coverage = data_pipeline_config['sentinel']['max_cloud_coverage']
 evalscript = EVALSCRIPTS[data_pipeline_config['sentinel']['evalscript']]
 cities = data_pipeline_config['cities']
 patches = data_pipeline_config['patches']
-patches_save_dir = data_pipeline_config['patches']['save_dir']
+patches_save_dir = data_pipeline_config['patches_save_dir']
 verbose = data_pipeline_config['verbose']
 
 if not os.path.exists(patches_save_dir):

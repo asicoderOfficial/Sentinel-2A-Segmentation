@@ -1,6 +1,7 @@
 import os
 
 import numpy as np
+import torch
 
 from src.data_processing.constants import AUGMENTATIONS_DECODER
 
@@ -62,13 +63,13 @@ def store_patches(city:np.array, buildings:np.array, dir:str, city_id:str, side_
     """    
     # Check input
     # City and buildings shapes
-    if city.shape[1:] != buildings.shape: raise ValueError("City and buildings must have the same shape.")
+    if city.shape[1:] != buildings.shape: raise ValueError("City and buildings (features and labels, respectively) must have the same shape.")
     # Side sizes
-    if any(s < 1 for s in side_size): raise ValueError("Patch sizes must be at least 1.")
+    if side_size < 1: raise ValueError("Patch sizes must be at least 1 pixel by 1 pixel.")
     # Stride
     if stride < 1: raise ValueError("Stride must be at least 1.")
     if stride > min(city.shape[:2]): raise ValueError("Stride must be smaller than the smallest dimension of the city.")
-    if stride > min(side_size): raise ValueError("Stride must be smaller than the smallest patch size.")
+    if stride > side_size: raise ValueError("Stride must be smaller than the patch size.")
 
     city_patches = []
     buildings_patches = []
@@ -78,6 +79,9 @@ def store_patches(city:np.array, buildings:np.array, dir:str, city_id:str, side_
     # This border will be black for the city and white for the buildings arrays respectively
     city_padded, buildings_padded = _pad(city, buildings, side_size, stride)
     # Iterate over the city and buildings arrays, selecting patches
+    # convert city_padded to torch tensor
+    city_padded = torch.from_numpy(city_padded)
+    buildings_padded = torch.from_numpy(buildings_padded)
     for i in range(0, city_padded.shape[2] - side_size + 1, stride):
         for j in range(0, city_padded.shape[1] - side_size + 1, stride):
             # Select the patch
@@ -94,7 +98,7 @@ def store_patches(city:np.array, buildings:np.array, dir:str, city_id:str, side_
                     if augmentation_name in AUGMENTATIONS_DECODER:
                         if augmentation_name == 'compose':
                             # Compose multiple augmentations
-                            curr_aug = [AUGMENTATIONS_DECODER[aug['name']](**aug['parameters']) for aug in augmentation['augmentations']]
+                            curr_aug = AUGMENTATIONS_DECODER[augmentation_name]([AUGMENTATIONS_DECODER[aug['name']](**aug['parameters']) for aug in augmentation['augmentations']])
                         else:
                             curr_aug = AUGMENTATIONS_DECODER[augmentation_name](**augmentation['parameters'])
                         # Apply it
@@ -102,7 +106,7 @@ def store_patches(city:np.array, buildings:np.array, dir:str, city_id:str, side_
                         city_patches.append(augmented_city_patch)
                         buildings_patches.append(buildings_patch)
                     else:
-                        raise ValueError(f"Augmentation {augmentation['name']} not found in the decoder.")
+                        raise ValueError(f"Augmentation {augmentation['name']} not found in the decoder dictionary. Check the src.data_processing.constants.AUGMENTATIONS_DECODER dictionary for the available augmentations.")
     
     # Save all patches together
     city_patches = np.array(city_patches)
