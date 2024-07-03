@@ -2,12 +2,10 @@ from torchvision import transforms
 
 PATCHES_DEFAULT_SIZES = [32, 64, 128]
 
-# TODO: Add all possible augmentations from the PyTorch library
 AUGMENTATIONS_DECODER = {
     'compose': transforms.Compose,
     'resize': transforms.Resize,
     'center_crop': transforms.CenterCrop,
-    'to_tensor': transforms.ToTensor,
     'normalize': transforms.Normalize,
     'random_resized_crop': transforms.RandomResizedCrop,
     'grayscale': transforms.Grayscale,
@@ -28,7 +26,15 @@ AUGMENTATIONS_DECODER = {
     'ten_crop': transforms.TenCrop,
     'linear_transformation': transforms.LinearTransformation,
     'lambda': transforms.Lambda,
-    'to_pil_image': transforms.ToPILImage,
-    'to_tensor': transforms.ToTensor,
     'normalize': transforms.Normalize,
+    'autoaugment': transforms.AutoAugment,
+    'randaugment': transforms.RandAugment,
+    'trivialaugmentwide': transforms.TrivialAugmentWide,
+    'interpolationmode': transforms.InterpolationMode,
+    'elastictransform': transforms.ElasticTransform,
+    'randomsolarize': transforms.RandomSolarize,
+    'randomposterize': transforms.RandomPosterize,
+    'randomadjustsharpness': transforms.RandomAdjustSharpness,
+    'randomautocontrast': transforms.RandomAutocontrast,
+    'randomequalize': transforms.RandomEqualize
 }
