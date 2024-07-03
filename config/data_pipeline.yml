@@ -1,5 +1,4 @@
-
-env_file: .env.local
+env_file: config/.env.local
 cities:
   - name: Berlin
     north: 52.574409
@@ -60,31 +59,30 @@ sentinel:
   resolution: 10
   max_cloud_coverage: 5
   evalscript: ALL
-patches:
-  - size: 32
-    stride: 6
-    augmentations: 
-      - name: flip
-        parameters:
-          p: 0.5
-      - name: rotate
-        parameters:
-          p: 0.5
-      - name: compose
-        augmentations:
-          - name: flip
-            parameters:
-              p: 0.5
-          - name: rotate
-            parameters:
-              p: 0.5
-  - size: 64
-    stride: 12
-    augmentations: {}
-  - size: 128
-    stride: 24
-    augmentations: {}
-  stride: 4
-  save_dir: data
+patches: 
+- size: 32
+  stride: 6
+  augmentations: 
+    - name: random_horizontal_flip
+      parameters: 
+        p: 0.5
+    - name: random_rotation
+      parameters:
+        degrees: 90
+    - name: compose
+      augmentations:
+        - name: random_horizontal_flip
+          parameters: 
+            p: 0.5
+        - name: random_rotation
+          parameters:
+            degrees: 90
+- size: 64
+  stride: 12
+  augmentations: {}
+- size: 128
+  stride: 24
+  augmentations: {}
+patches_save_dir: data
 
 verbose: true
