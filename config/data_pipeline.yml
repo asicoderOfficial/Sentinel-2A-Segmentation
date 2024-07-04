@@ -1,4 +1,6 @@
 env_file: config/.env.local
+merge: true
+download: false
 cities:
   - name: Berlin
     north: 52.574409
@@ -15,11 +17,11 @@ cities:
     south: 40.334507
     east: -3.564034
     west: -3.803673
-  - name: Paris
-    north: 48.95813
-    south: 48.738984
-    east: 2.51
-    west: 2.18089
+  - name: Valencia
+    north: -0.414391
+    south: -0.313625
+    east: 39.436193
+    west: 39.508014
   - name: Delhi
     north: 28.716485
     south: 28.512143
@@ -84,5 +86,4 @@ patches:
   stride: 24
   augmentations: {}
 patches_save_dir: data
-
 verbose: true
