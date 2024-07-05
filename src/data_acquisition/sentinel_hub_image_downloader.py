@@ -13,7 +13,7 @@ import matplotlib.pyplot as plt
 
 
 class SentinelHubImageDownloader:
-    def __init__(self, bbox:Tuple[float, float, float, float], size:Tuple[float, float], config:SHConfig, max_cloud_coverage:float=20.0) -> None:
+    def __init__(self, bbox:Tuple[float, float, float, float], size:Tuple[float, float], config:SHConfig, max_cloud_coverage:float=0.0) -> None:
         """ Initializes the SentinelHubImageDownloader object
 
         Args:
@@ -22,7 +22,7 @@ class SentinelHubImageDownloader:
             config (SHConfig): The configuration object for the SentinelHub API, containing the API credentials
             max_cloud_coverage (int, optional): The maximum allowable cloud coverage in percent. 
                 Cloud coverage is a product average and not viewport accurate hence images may have more cloud cover than specified here. 
-                Defaults to 20. Allowed range [0.0 - 100.0]
+                Defaults to 0 (no clouds). Allowed range [0.0 - 100.0]
         
         Returns:
             None
