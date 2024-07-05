@@ -1,6 +1,6 @@
 env_file: config/.env.local
 merge: true
-download: false
+download: true
 cities:
   - name: Berlin
     north: 52.574409
@@ -17,36 +17,36 @@ cities:
     south: 40.334507
     east: -3.564034
     west: -3.803673
-  - name: Valencia
-    north: -0.414391
-    south: -0.313625
-    east: 39.436193
-    west: 39.508014
+  - name: Barcelona
+    north: 41.467428
+    south: 41.357742
+    east: 2.249451
+    west: 2.111435
   - name: Delhi
     north: 28.716485
     south: 28.512143
     east: 77.32199
     west: 77.074585
-  - name: Tokyo
-    north: 35.74707
-    south: 35.586968
-    east: 139.843597
-    west: 139.580612
+  - name: Athens
+    north: 38.017669
+    south: 37.935398
+    east: 23.789349
+    west: 23.68
   - name: Cairo
     north: 30.139783
     south: 29.93292
     east: 31.370225
     west: 31.116714
-  - name: Moscow
-    north: 55.862212
-    south: 55.636365
-    east: 37.825928
-    west: 37.45454
-  - name: Mexico City
-    north: 19.520964
-    south: 19.324427
-    east: -99.032478
-    west: -99.243965
+  - name: Beijing
+    north: 39.968701
+    south: 39.849667
+    east: 116.468811
+    west: 116.299896
+  - name: Rome
+    north: 41.948767
+    south: 41.853708
+    east: 12.550507
+    west: 12.421761
   - name: Nairobi
     north: -1.20772
     south: -1.396499
@@ -61,29 +61,16 @@ sentinel:
   resolution: 10
   max_cloud_coverage: 5
   evalscript: ALL
+  bands: rgb
 patches: 
 - size: 32
-  stride: 6
-  augmentations: 
-    - name: random_horizontal_flip
-      parameters: 
-        p: 0.5
-    - name: random_rotation
-      parameters:
-        degrees: 90
-    - name: compose
-      augmentations:
-        - name: random_horizontal_flip
-          parameters: 
-            p: 0.5
-        - name: random_rotation
-          parameters:
-            degrees: 90
+  stride: 16
+  augmentations: []
 - size: 64
-  stride: 12
+  stride: 32
   augmentations: {}
 - size: 128
-  stride: 24
+  stride: 64
   augmentations: {}
 patches_save_dir: data
 verbose: true
