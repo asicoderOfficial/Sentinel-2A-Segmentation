@@ -6,7 +6,7 @@ verbose: true
 model: 
   name: UNet
   parameters:
-    in_channels: 13
+    in_channels: 3
     out_channels: 1
 loss: 
   name: BCEWithLogits
@@ -21,7 +21,8 @@ train:
   mode:
     name: density
     perc: [0.7, 0.8]
-  data_dir: data/Berlin
+  data_dir: data
+  patches_sizes: [32, 64, 128]
   hyperparameters:
     mode: manual
     batch_size: [16, 32]
