@@ -5,21 +5,29 @@ from torch.utils.data import Dataset
 
 class SentinelDataset(Dataset):
 
-    def __init__(self, dir, transforms: list=[], precision=np.float32) -> None:
+    def __init__(self, dir:str='', patch_size:int=None, features:np.ndarray=None, labels:np.ndarray=None, precision:np.dtype=np.float32) -> None:
         """ Dataset class for the Sentinel dataset.
         It assumes that, as requested in the task description, features and labels are stored in the same directory, each in a big .npy file.
 
         Args:
             dir (str): Directory where the features and labels are stored.
-            transforms (list, optional): Which transforms to perform. Defaults to [].
+            patch_size (int): The size of the patches to load.
             precision (np.dtype, optional): Precision of the data. Defaults to np.float32. Allowing for later reduction of memory usage.
         
+        Raises:
+            ValueError: If neither a directory nor features and labels are provided.
+
         Returns:
             None
         """        
-        self.dir = dir
-        self.features = np.load(f'{dir}/city.npy', mmap_mode='r').astype(precision)
-        self.labels = np.load(f'{dir}/buildings.npy', mmap_mode='r').astype(precision)
+        if dir and patch_size:
+            self.features = np.load(f'{dir}/city_{patch_size}.npy', mmap_mode='r').astype(precision)
+            self.labels = np.load(f'{dir}/buildings_{patch_size}.npy', mmap_mode='r').astype(precision)
+        elif features is not None and labels is not None:
+            self.features = features
+            self.labels = labels
+        else:
+            raise ValueError('You need to provide either a directory or features and labels.')
 
 
     def __len__(self) -> int:
