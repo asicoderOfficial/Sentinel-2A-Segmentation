@@ -1,4 +1,5 @@
 import os
+import logging
 
 import numpy as np
 import torch
@@ -41,7 +42,7 @@ def _pad(city: np.array, buildings: np.array, side_size: int, stride: int):
     return city_padded, buildings_padded
 
 
-def store_patches(city:np.array, buildings:np.array, dir:str, city_id:str, side_size:int, stride:int=1, augmentations:list=[]):
+def store_patches(city:np.array, buildings:np.array, dir:str, city_id:str, side_size:int, stride:int=1, bands:str='rgb', augmentations:list=[], verbose:bool=False):
     """ Given a city and its buildings, it extracts patches as square parts, with a specified stride and side size, and stores them in a directory, together with the corresponding labels (building or not building).
 
     Important: it assumes that city is 3D (ndim = 3) and buildings is 2D (ndim = 2) and they have a [C, H, W] and [H, W] shape respectively, 
@@ -55,8 +56,16 @@ def store_patches(city:np.array, buildings:np.array, dir:str, city_id:str, side_
         city_id (str): The id of the city, to be used in the name of the files.
         side_size (int, optional): How many pixels the squared patch will have.
         stride (int, optional): How many pixels the sliding window moves at each step. Defaults to 1. At max, it will move the size of the patch.
+        bands (str, optional): Whether to use the RGB bands or ALL the multispectral bands. Defaults to 'rgb'. Possible values: 'rgb' or 'all'.
+        augmentations (list, optional): List of augmentations to apply to the patches, specified as dictionaries with the keys 'name' and 'parameters' in the yml file. Defaults to [].
+        verbose (bool, optional): Whether to give information about the process. Defaults to False.
 
     Raises:
+        ValueError: 
+            - The city and buildings arrays don't have the same shape.
+            - The patch size is smaller than 1 pixel.
+            - The stride is smaller than 1 or bigger than the smallest dimension of the city.
+            - The stride is bigger than the patch size.
 
     Returns:
         None
@@ -68,8 +77,10 @@ def store_patches(city:np.array, buildings:np.array, dir:str, city_id:str, side_
     if side_size < 1: raise ValueError("Patch sizes must be at least 1 pixel by 1 pixel.")
     # Stride
     if stride < 1: raise ValueError("Stride must be at least 1.")
-    if stride > min(city.shape[:2]): raise ValueError("Stride must be smaller than the smallest dimension of the city.")
+    if stride > min(city.shape[1:]): raise ValueError("Stride must be smaller than the smallest dimension of the city.")
     if stride > side_size: raise ValueError("Stride must be smaller than the patch size.")
+
+    if verbose: logging.info(f"Extracting patches from the images for {city_id} with shape of city {city.shape} and buildings {buildings.shape}. The patches will have a side size of {side_size} and a stride of {stride}.")
 
     city_patches = []
     buildings_patches = []
@@ -79,8 +90,9 @@ def store_patches(city:np.array, buildings:np.array, dir:str, city_id:str, side_
     # This border will be black for the city and white for the buildings arrays respectively
     city_padded, buildings_padded = _pad(city, buildings, side_size, stride)
     # Iterate over the city and buildings arrays, selecting patches
-    # convert city_padded to torch tensor
+    # Convert the padded city and buildings arrays to torch tensors to then apply the augmentations if any
     city_padded = torch.from_numpy(city_padded)
+    # check if there is any 1 in the whole city_padded 13th channel
     buildings_padded = torch.from_numpy(buildings_padded)
     for i in range(0, city_padded.shape[2] - side_size + 1, stride):
         for j in range(0, city_padded.shape[1] - side_size + 1, stride):
@@ -90,6 +102,11 @@ def store_patches(city:np.array, buildings:np.array, dir:str, city_id:str, side_
             # Detect clouds. If any, discard the patch
             # Check if there is any 1 in the 13th channel of the city patch
             if not city_patch[12, :, :].any():
+                if bands == 'rgb':
+                    city_patch = city_patch[:3, :, :]
+                else:
+                    # Exclude the 13th channel, not needed because there are no clouds
+                    city_patch = city_patch[:12, :, :]
                 city_patches.append(city_patch)
                 buildings_patches.append(buildings_patch)
                 # Apply the transformations to augment the dataset
@@ -111,5 +128,5 @@ def store_patches(city:np.array, buildings:np.array, dir:str, city_id:str, side_
     # Save all patches together
     city_patches = np.array(city_patches)
     buildings_patches = np.array(buildings_patches)
-    np.save(f'{dir}/{city_id}/city.npy', city_patches)
-    np.save(f'{dir}/{city_id}/buildings.npy', buildings_patches)
+    np.save(f'{dir}/{city_id}/city_{side_size}.npy', city_patches)
+    np.save(f'{dir}/{city_id}/buildings_{side_size}.npy', buildings_patches)
