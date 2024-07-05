@@ -24,12 +24,12 @@ from src.data_processing.patches import store_patches
 main_dir = os.getcwd()
 sentinel_config = SHConfig()
 
-yml_file = input("Enter the path to the yml file with the configuration for the data pipeline: ")
+yml_file = input("Enter the path to the yml file with the configuration for the data pipeline (defaults to data/config/data_pipeline.yml): ")
 if not yml_file:
     yml_file = f'{main_dir}/config/data_pipeline.yml'
 while not os.path.exists(yml_file):
     logging.warning(f"Warning! The file {yml_file} does not exist. Please provide a valid path.")
-    yml_file = input("Enter the path to the yml file with the configuration for the data pipeline: ")
+    yml_file = input("Enter the path to the yml file with the configuration for the data pipeline (defaults to data/config/data_pipeline.yml): ")
     if not yml_file:
         yml_file = f'{main_dir}/config/data_pipeline.yml'
 
@@ -57,6 +57,7 @@ if download:
     max_cloud_coverage = data_pipeline_config['sentinel']['max_cloud_coverage']
     evalscript = EVALSCRIPTS[data_pipeline_config['sentinel']['evalscript']]
     patches = data_pipeline_config['patches']
+    bands = data_pipeline_config['sentinel']['bands']
     verbose = data_pipeline_config['verbose']
 
     if not os.path.exists(patches_save_dir):
@@ -84,7 +85,7 @@ if download:
             exit()
         # Date range
         end_date = datetime.now()
-        start_date = end_date.replace(month=end_date.month-1)
+        start_date = end_date.replace(month=end_date.month-3)
         start_date = start_date.strftime("%Y-%m-%d")
         end_date = end_date.strftime("%Y-%m-%d")
 
@@ -122,26 +123,37 @@ if download:
             patch_side_size = patch['size']
             patch_stride = patch['stride']
             patch_augmentations = patch['augmentations']
-            store_patches(city_data, buildings_data, patches_save_dir, city_name, patch_side_size, stride=patch_stride, augmentations=patch_augmentations)
+            store_patches(city_data, buildings_data, patches_save_dir, city_name, patch_side_size, stride=patch_stride, bands=bands, augmentations=patch_augmentations)
         if verbose:
-            logging.info(f"Finished extracting patches from the images for {city_name}. Find them in {patches_save_dir}/, each city has a subdirectory, and all patches are merged together in a single file, called buildings.npy or city.npy")
+            logging.info(f"Finished extracting patches from the images for {city_name}. Find them in {patches_save_dir}/, each city has a subdirectory, and all patches are merged together in a file for each patch size, called buildings.npy or city.npy + _patchsize.")
 
     if os.path.exists('tmp'):
-        # remove it as a directory
         os.rmdir('tmp')
 
 if merge:
-    # Merge all downloaded patches together into the same npy files. One for the cities and one for the buildings.
-    all_cities_patches = []
-    all_buildings_patches = []
+    # Merge all downloaded patches together into the same npy files. One for the cities and one for the buildings, for each patch side size
+    all_cities_patches = {}
+    all_buildings_patches = {}
     for city in cities:
         city_name = city['name']
-        city_patches = np.load(f'{patches_save_dir}/{city_name}/city.npy', mmap_mode='r')
-        print(city_name, city_patches.ndim)
-        buildings_patches = np.load(f'{patches_save_dir}/{city_name}/buildings.npy', mmap_mode='r')
-        all_cities_patches.append(city_patches)
-        all_buildings_patches.append(buildings_patches)
-    all_cities_patches = np.concatenate(all_cities_patches)
-    all_buildings_patches = np.concatenate(all_buildings_patches)
-    np.save(f'{patches_save_dir}/city.npy', all_cities_patches)
-    np.save(f'{patches_save_dir}/buildings.npy', all_buildings_patches)
+        npy_files = [f for f in os.listdir(f'{patches_save_dir}/{city_name}')]
+        city_files = [f for f in npy_files if 'city' in f]
+        buildings_files = [f for f in npy_files if 'buildings' in f]
+        for city_file in city_files:
+            patch_size = city_file.split('_')[1].split('.')[0]
+            if patch_size not in all_cities_patches:
+                all_cities_patches[city_file.split('_')[1].split('.')[0]] = []
+            city_patches = np.load(f'{patches_save_dir}/{city_name}/{city_file}', mmap_mode='r')
+            all_cities_patches[patch_size].append(city_patches)
+        for buildings_file in buildings_files:
+            patch_size = buildings_file.split('_')[1].split('.')[0]
+            if patch_size not in all_buildings_patches:
+                all_buildings_patches[buildings_file.split('_')[1].split('.')[0]] = []
+            buildings_patches = np.load(f'{patches_save_dir}/{city_name}/{buildings_file}', mmap_mode='r')
+            all_buildings_patches[patch_size].append(buildings_patches)
+
+    for patch_size, city_patches in all_cities_patches.items():
+        np.save(f'{patches_save_dir}/city_{patch_size}.npy', np.concatenate(city_patches))
+    for patch_size, building_patches in all_buildings_patches.items():
+        np.save(f'{patches_save_dir}/buildings_{patch_size}.npy', np.concatenate(building_patches))
+    
