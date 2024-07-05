@@ -1,5 +1,6 @@
 import torch
 
+from src.ml.metrics.dice import DiceCoefficient
 
 class DiceLoss(torch.nn.Module):
     """Computes the dice loss."""
@@ -26,13 +27,8 @@ class DiceLoss(torch.nn.Module):
         
         assert(probability_map.shape == target_mask.shape), f"Input tensors must have the same shape, got {probability_map.shape} and {target_mask.shape}"
         
-        batch_size = target_mask.size(0)
-        probability_vectorized = probability_map.view(batch_size, -1)
-        targets_vectorized = target_mask.view(batch_size, -1)
-       
-        
-        intersection = 2.0 * (probability_vectorized * targets_vectorized).sum()
-        union = probability_vectorized.sum() + targets_vectorized.sum()
-        dice_score = (intersection + self.eps) / union
+        dice_score = DiceCoefficient.compute_dice(probability_map, target_mask)
+
+        dice_score = torch.tensor(dice_score, requires_grad=True)
     
         return 1.0 - dice_score
