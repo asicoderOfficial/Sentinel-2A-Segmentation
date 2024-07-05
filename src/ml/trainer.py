@@ -102,7 +102,7 @@ class Trainer:
                 dice = DiceCoefficient.compute_dice(predicted=outputs, target=labels)
                 epoch_total_dice += dice
             
-                if batch_idx % 10 == 0:
+                if batch_idx % 100 == 0:
                     if self.logger:
                         self.logger.info(f'Epoch: {epoch} | Batch: {batch_idx} | Loss: {loss.item()} | DICE: {dice}')
             
