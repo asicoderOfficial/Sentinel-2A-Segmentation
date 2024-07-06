@@ -9,7 +9,7 @@ model:
     in_channels: 3
     out_channels: 1
 loss: 
-  name: BCEWithLogits
+  name: haussdorf
   parameters: {}
 optimizer:
   name: Adam
@@ -20,17 +20,17 @@ optimizer:
 train:
   mode:
     name: density
-    perc: [0.7, 0.8]
-  data_dir: data
-  patches_sizes: [32, 64, 128]
+    perc: [0.7]
+  data_dir: data/train
+  patches_sizes: [128]
   hyperparameters:
     mode: manual
-    batch_size: [16, 32]
-    epochs: [50, 100]
+    batch_size: [32]
+    epochs: [1]
     lr: [0.1, 0.001]
   early_stopping:
     delta: 0.01
-    patience: 4
+    patience: 3
 # Validation
 val:
   metrics:
