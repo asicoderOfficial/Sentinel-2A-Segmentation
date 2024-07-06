@@ -60,10 +60,13 @@ if download:
     bands = data_pipeline_config['sentinel']['bands']
     verbose = data_pipeline_config['verbose']
 
-    if not os.path.exists(patches_save_dir):
-        os.makedirs(patches_save_dir)
-    if not os.path.exists(f'{patches_save_dir}/original_images'):
-        os.makedirs(f'{patches_save_dir}/original_images')
+    directories = [patches_save_dir, 
+                    f'{patches_save_dir}/original_images', 
+                    f'{patches_save_dir}/train', 
+                    f'{patches_save_dir}/test']
+
+    for directory in directories:
+        os.makedirs(directory, exist_ok=True)
 
     # Get the corresponding coordinates bounding boxes for each of the specified cities
     osm = OSM(imgs_tmp_folder='tmp', imgs_tmp_extension='png')
@@ -74,6 +77,8 @@ if download:
         south = city['south']
         east = city['east']
         west = city['west']
+        # Train or test data
+        data_set = city['set']
         if verbose:
             logging.info(f"Downloading data for city {city['name']} with coordinates, north: {city['north']}, south: {city['south']}, east: {city['east']}, west: {city['west']}")
         osmnx_bbox = (north, south, east, west)
@@ -119,13 +124,14 @@ if download:
         # Extract patches from the images and save them
         if verbose:
             logging.info(f"Extracting patches from the images for {city_name}")
+        patches_save_dir_set = f'{patches_save_dir}/{data_set}'
         for patch in patches:
             patch_side_size = patch['size']
             patch_stride = patch['stride']
             patch_augmentations = patch['augmentations']
-            store_patches(city_data, buildings_data, patches_save_dir, city_name, patch_side_size, stride=patch_stride, bands=bands, augmentations=patch_augmentations)
+            store_patches(city_data, buildings_data, patches_save_dir_set, city_name, patch_side_size, stride=patch_stride, bands=bands, augmentations=patch_augmentations)
         if verbose:
-            logging.info(f"Finished extracting patches from the images for {city_name}. Find them in {patches_save_dir}/, each city has a subdirectory, and all patches are merged together in a file for each patch size, called buildings.npy or city.npy + _patchsize.")
+            logging.info(f"Finished extracting patches from the images for {city_name}. Find them in {patches_save_dir_set}/, each city has a subdirectory, and all patches are merged together in a file for each patch size, called buildings.npy or city.npy + _patchsize.")
 
     if os.path.exists('tmp'):
         os.rmdir('tmp')
@@ -136,20 +142,22 @@ if merge:
     all_buildings_patches = {}
     for city in cities:
         city_name = city['name']
-        npy_files = [f for f in os.listdir(f'{patches_save_dir}/{city_name}')]
+        data_set = city['set']
+        patches_save_dir_set = f'{patches_save_dir}/{data_set}'
+        npy_files = [f for f in os.listdir(f'{patches_save_dir_set}/{city_name}')]
         city_files = [f for f in npy_files if 'city' in f]
         buildings_files = [f for f in npy_files if 'buildings' in f]
         for city_file in city_files:
             patch_size = city_file.split('_')[1].split('.')[0]
             if patch_size not in all_cities_patches:
                 all_cities_patches[city_file.split('_')[1].split('.')[0]] = []
-            city_patches = np.load(f'{patches_save_dir}/{city_name}/{city_file}', mmap_mode='r')
+            city_patches = np.load(f'{patches_save_dir_set}/{city_name}/{city_file}', mmap_mode='r')
             all_cities_patches[patch_size].append(city_patches)
         for buildings_file in buildings_files:
             patch_size = buildings_file.split('_')[1].split('.')[0]
             if patch_size not in all_buildings_patches:
                 all_buildings_patches[buildings_file.split('_')[1].split('.')[0]] = []
-            buildings_patches = np.load(f'{patches_save_dir}/{city_name}/{buildings_file}', mmap_mode='r')
+            buildings_patches = np.load(f'{patches_save_dir_set}/{city_name}/{buildings_file}', mmap_mode='r')
             all_buildings_patches[patch_size].append(buildings_patches)
 
     for patch_size, city_patches in all_cities_patches.items():
