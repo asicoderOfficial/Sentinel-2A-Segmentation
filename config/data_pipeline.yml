@@ -7,56 +7,67 @@ cities:
     south: 52.454927
     west: 13.294333
     east: 13.500205
+    set: test
   - name: London
     north: 51.580483
     south: 51.403061
     east: 0.037079
     west: -0.265732
+    set: train
   - name: Madrid
     north: 40.522412
     south: 40.334507
     east: -3.564034
     west: -3.803673
+    set: train
   - name: Barcelona
     north: 41.467428
     south: 41.357742
     east: 2.249451
     west: 2.111435
+    set: train
   - name: Delhi
     north: 28.716485
     south: 28.512143
     east: 77.32199
     west: 77.074585
+    set: train
   - name: Athens
     north: 38.017669
     south: 37.935398
     east: 23.789349
     west: 23.68
+    set: train
   - name: Cairo
     north: 30.139783
     south: 29.93292
     east: 31.370225
     west: 31.116714
+    set: train
   - name: Beijing
     north: 39.968701
     south: 39.849667
     east: 116.468811
     west: 116.299896
+    set: train
   - name: Rome
     north: 41.948767
     south: 41.853708
     east: 12.550507
     west: 12.421761
+    set: train
   - name: Nairobi
     north: -1.20772
     south: -1.396499
     east: 36.922989
     west: 36.730728
+    set: train
   - name: Sydney
     north: -33.787137
     south: -34.006518
     east: 151.290321
     west: 151.029396
+    set: train
 sentinel:
   resolution: 10
   max_cloud_coverage: 5
