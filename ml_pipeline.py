@@ -24,6 +24,7 @@ logging_dir = config['logging']['dir']
 if not os.path.exists(logging_dir):
     os.makedirs(logging_dir)
 train_data_dir = config['train']['data_dir']
+test_data_dir = config['test']['data_dir']
 patches_sizes = config['train']['patches_sizes']
 verbose = config['verbose']
 
@@ -55,7 +56,7 @@ early_stopping = config['train']['early_stopping']
 for patch_size in patches_sizes:
     # Data for train-val and for test
     train_val_dataset = SentinelDataset(dir=train_data_dir, patch_size=patch_size)
-    #test_dataset = SentinelDataset(config['test']['data_dir'])
+    test_dataset = SentinelDataset(dir=test_data_dir, patch_size=patch_size)
     for curr_train_percentage in train_percentages:
         for curr_batch_size in batch_sizes:
             for curr_epoch in epochs:
@@ -91,7 +92,7 @@ for patch_size in patches_sizes:
                         optimizer = OPTIMIZER_DECODER[optimizer_name](model.parameters(), **optimizer_parameters)
 
                         # Execute the experiment! Cross your fingers!
-                        r = Run(id=experiment_id, train_dataset=train_val_dataset, model=model, criterion=criterion, optimizer=optimizer,
+                        r = Run(id=experiment_id, train_dataset=train_val_dataset, model=model, criterion=criterion, optimizer=optimizer, test_dataset=test_dataset,
                                 train_percentage=curr_train_percentage, trainer_hyperparameters=trainer_hyperparameters, model_hyperparameters=model_hyperparameters,
                                 device=device, split_mode=data_split_mode, verbose=verbose, logger=logger)
                         r.run()

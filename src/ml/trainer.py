@@ -153,3 +153,19 @@ class Trainer:
         avg_validation_dice = all_validation_dice / len(self.val_dataloader)
 
         return avg_validation_dice
+
+
+    def test(self):
+        dice = 0
+        self.model.eval()
+        with torch.no_grad():
+            for samples, labels in self.test_dataloader:
+                samples = samples.to(self.device)
+                labels = labels.to(self.device)
+
+                outputs = self.model(samples)
+                dice += DiceCoefficient.compute_dice(predicted=outputs, target=labels)
+
+        avg_dice = dice / len(self.test_dataloader)
+
+        return avg_dice

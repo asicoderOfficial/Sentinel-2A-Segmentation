@@ -12,6 +12,8 @@ class SentinelDataset(Dataset):
         Args:
             dir (str): Directory where the features and labels are stored.
             patch_size (int): The size of the patches to load.
+            features (np.ndarray, optional): The features data. Defaults to None. Used when splitting the data by density.
+            labels (np.ndarray, optional): The labels data. Defaults to None. Used when splitting the data by density.
             precision (np.dtype, optional): Precision of the data. Defaults to np.float32. Allowing for later reduction of memory usage.
         
         Raises:
