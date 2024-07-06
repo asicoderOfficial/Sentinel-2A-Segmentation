@@ -62,9 +62,9 @@ for patch_size in patches_sizes:
             for curr_epoch in epochs:
                 for curr_learning_rate in learning_rates:
                     try:
+                        # Set up logging
                         curr_time = datetime.now().strftime("%Y%m%d-%H%M%S")
                         experiment_id = f'{curr_time}_{model_name}_ps_{patch_size}_trperc_{curr_train_percentage}_batch_{curr_batch_size}_epoch_{curr_epoch}_lr_{curr_learning_rate}'
-                        # Set up logging
                         if not os.path.exists(f"runs/{experiment_id}/{logging_dir}/"):
                             os.makedirs(f"runs/{experiment_id}/{logging_dir}/")
                         log_file = f"runs/{experiment_id}/{logging_dir}/training_logs.log"

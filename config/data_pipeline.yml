@@ -72,7 +72,6 @@ sentinel:
   resolution: 10
   max_cloud_coverage: 5
   evalscript: ALL
-  bands: rgb
 patches: 
 - size: 32
   stride: 16

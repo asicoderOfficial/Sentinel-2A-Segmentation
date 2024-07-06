@@ -57,7 +57,6 @@ if download:
     max_cloud_coverage = data_pipeline_config['sentinel']['max_cloud_coverage']
     evalscript = EVALSCRIPTS[data_pipeline_config['sentinel']['evalscript']]
     patches = data_pipeline_config['patches']
-    bands = data_pipeline_config['sentinel']['bands']
     verbose = data_pipeline_config['verbose']
 
     directories = [patches_save_dir, 
@@ -94,7 +93,7 @@ if download:
         start_date = start_date.strftime("%Y-%m-%d")
         end_date = end_date.strftime("%Y-%m-%d")
 
-        # Download the Sentinel-2A image data with the specified bands (RGB or multispectral)
+        # Download the Sentinel-2A image data RGB + CLM
         downloader = SentinelHubImageDownloader(sentinel_bbox, size, sentinel_config, max_cloud_coverage=max_cloud_coverage)
         downloader.time_interval = (start_date, end_date)
         downloader.evalscript = evalscript
@@ -129,7 +128,7 @@ if download:
             patch_side_size = patch['size']
             patch_stride = patch['stride']
             patch_augmentations = patch['augmentations']
-            store_patches(city_data, buildings_data, patches_save_dir_set, city_name, patch_side_size, stride=patch_stride, bands=bands, augmentations=patch_augmentations)
+            store_patches(city_data, buildings_data, patches_save_dir_set, city_name, patch_side_size, stride=patch_stride, augmentations=patch_augmentations)
         if verbose:
             logging.info(f"Finished extracting patches from the images for {city_name}. Find them in {patches_save_dir_set}/, each city has a subdirectory, and all patches are merged together in a file for each patch size, called buildings.npy or city.npy + _patchsize.")
 

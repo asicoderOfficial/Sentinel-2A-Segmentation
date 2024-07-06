@@ -30,10 +30,10 @@ GRAY_N_BANDS = 1
 GRAY_EXPRESSION = "3.5 * sample.B02"
 EVALSCRIPT_GRAY = EVALSCRIPT_V3_FORMAT.format(input_=GRAY_INPUT_, n_bands=GRAY_N_BANDS, expression=GRAY_EXPRESSION)
 
-# All 13 bands
-ALL_BANDS_INPUT_ = ["B01", "B02", "B03", "B04", "B05", "B06", "B07", "B08", "B8A", "B09", "B11", "B12", "CLM"]
-ALL_BANDS_N_BANDS = 13
-ALL_BANDS_EXPRESSION = "sample.B01, sample.B02, sample.B03, sample.B04, sample.B05, sample.B06, sample.B07, sample.B08, sample.B8A, sample.B09, sample.B11, sample.B12, sample.CLM"
+# All RGB Bands + CLM (cloud mask)
+ALL_BANDS_INPUT_ = ["B02", "B03", "B04", "CLM"]
+ALL_BANDS_N_BANDS = 4
+ALL_BANDS_EXPRESSION = "sample.B02, sample.B03, sample.B04, sample.CLM"
 EVALSCRIPT_ALL_BANDS = EVALSCRIPT_V3_FORMAT.format(input_=ALL_BANDS_INPUT_, n_bands=ALL_BANDS_N_BANDS, expression=ALL_BANDS_EXPRESSION)
 
 EVALSCRIPTS = {
