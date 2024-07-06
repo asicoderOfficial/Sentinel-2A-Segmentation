@@ -15,9 +15,9 @@ from src.ml.logs.plots import TrainingPlots
 
 
 class Run:
-    def __init__(self, id: str, train_dataset: SentinelDataset, model: nn.Module, criterion, optimizer: torch, 
+    def __init__(self, id: str, train_dataset: SentinelDataset, model: nn.Module, criterion, optimizer: torch, test_dataset: SentinelDataset=None,
                  train_percentage: float=0.7, trainer_hyperparameters: dict={'epochs': 20}, model_hyperparameters: dict={'batch_size': 16, 'learning_rate': 0.001},
-                 device:torch.device=torch.device('cuda'), test_dataset: SentinelDataset=None, split_mode:str='density', verbose: bool=False, logger:Logger=None) -> None:
+                 device:torch.device=torch.device('cuda'), split_mode:str='density', verbose: bool=False, logger:Logger=None) -> None:
         """ To run an experiment.
 
         Args:
@@ -26,11 +26,11 @@ class Run:
             model (nn.Module): The model to train.
             criterion (nn): The loss function.
             optimizer (torch): The optimizer.
+            test_dataset (SentinelDataset, optional): The testing dataset (for inference, no labels). Defaults to None.
             train_percentage (float, optional): How much to allocate to train, in the inverval [0, 1]. Defaults to 0.7.
             trainer_hyperparameters (dict, optional): The trainer hyperparameters to pass to the train() function of Trainer class. Defaults to {'epochs': 20}.
             model_hyperparameters (dict, optional): The model hyperparameters. Defaults to {'batch_size': 16, 'learning_rate': 0.001}.
             device (torch.device, optional): The device to use. Defaults to torch.device('cuda').
-            test_dataset (SentinelDataset, optional): The testing dataset (for inference, no labels). Defaults to None.
             split_mode (str, optional): How to split the data. Defaults to 'density'. Modes: 'density' or 'random'.
             verbose (bool, optional): Whether to print information of the run. Defaults to False.
             logger (Logger, optional): The logger to use. Defaults to None.
@@ -40,6 +40,7 @@ class Run:
         """        
         self.id = id
         self.train_dataset = train_dataset
+        self.test_dataset = test_dataset
         self.model = model
         self.criterion = criterion
         self.optimizer = optimizer
@@ -109,8 +110,9 @@ class Run:
                 '''
             )
 
-        # Test
-        # TODO: Implement testing (if needed)
+        if self.test_dataset:
+            # Test dataset was provided, so testing is intended. Perform inference and calculate metrics.
+            test_dice, predicted_labels = self.trainer.test()
 
         if self.verbose:
             self.logger.info(

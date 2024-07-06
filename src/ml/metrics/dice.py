@@ -1,5 +1,7 @@
 import torch
 
+from src.ml.utils import predictions_to_binary
+
 
 class DiceCoefficient:
     @staticmethod
@@ -16,12 +18,7 @@ class DiceCoefficient:
         Returns:
             float: The Dice coefficient.
         """        
-        # Apply sigmoid to the predicted values
-        predicted = torch.sigmoid(predicted)
-
-        # If a pixel has a probability greater than 0.5, it is considered as a building (label 1), if not, it is considered as background (label 0)
-        predicted_labels = predicted > 0.5
-        predicted_labels = predicted_labels.int()
+        predicted_labels = predictions_to_binary(predicted)
 
         intersection = torch.eq(predicted_labels, target).sum().float()
         union = predicted_labels.numel()

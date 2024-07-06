@@ -1,6 +1,7 @@
 import time
 from logging import Logger
 
+import numpy as np
 import torch.nn as nn
 import torch
 from torch.utils.data.dataloader import DataLoader
@@ -8,6 +9,7 @@ from torch.utils.data.dataloader import DataLoader
 
 from src.ml.metrics.dice import DiceCoefficient
 from src.ml.constants import LABELS
+from src.ml.utils import predictions_to_binary
 
 
 class Trainer:
@@ -157,6 +159,7 @@ class Trainer:
 
     def test(self):
         dice = 0
+        buildings_inferred = []
         self.model.eval()
         with torch.no_grad():
             for samples, labels in self.test_dataloader:
@@ -166,6 +169,8 @@ class Trainer:
                 outputs = self.model(samples)
                 dice += DiceCoefficient.compute_dice(predicted=outputs, target=labels)
 
+                buildings_inferred.append(predictions_to_binary(outputs).cpu().numpy())
+
         avg_dice = dice / len(self.test_dataloader)
 
-        return avg_dice
+        return avg_dice, np.array(buildings_inferred)
