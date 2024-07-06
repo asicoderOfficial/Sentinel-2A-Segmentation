@@ -3,7 +3,6 @@ from logging import Logger
 
 import torch
 import torch.nn as nn
-from torch.utils.data import random_split
 from torch.utils.data.dataloader import DataLoader
 
 from src.ml.data.dataset import SentinelDataset

@@ -1,6 +1,9 @@
+import torch
+
 from src.ml.models.baseline import Baseline
 from src.ml.models.unet import UNet
-import torch
+from src.ml.loss_functions.dice import DiceLoss
+from src.ml.loss_functions.hausdorff import HausdorffLoss
 
 # Training
 EXPERIMENTS_SAVE_DIR = 'runs'
@@ -21,7 +24,9 @@ MODELS_DECODER = {
 
 # Loss functions
 LOSS_FN_DECODER = {
-    'bcewithlogits': torch.nn.BCEWithLogitsLoss
+    'bcewithlogits': torch.nn.BCEWithLogitsLoss,
+    'dice': DiceLoss,
+    'haussdorf': HausdorffLoss
 }
 
 # Optimizers
