@@ -1,6 +1,7 @@
 import os
 from logging import Logger
 
+import numpy as np
 import torch
 import torch.nn as nn
 from torch.utils.data.dataloader import DataLoader
@@ -134,6 +135,12 @@ class Run:
         TrainingPlots.dice_by_epoch(train_epoch_dice_df, val_epoch_dice_df, f'{self.run_info_dir}/train/plots')
         TrainingPlots.time_by_epoch(train_time_by_epoch_df, f'{self.run_info_dir}/train/plots')
 
+        # Save the predicted labels
+        if self.test_dataset:
+            np.save(f'{self.run_info_dir}/test/predicted_labels.npy', predicted_labels)
+            with open(f'{self.run_info_dir}/test/dice.txt', 'w') as f:
+                f.write(f'Test Dice: {test_dice}')
+
         if self.verbose:
             self.logger.info(
                 f'''
@@ -178,6 +185,4 @@ class Run:
 
         # Testing information
         if self.test_dataset:
-            os.makedirs(f'{self.run_info_dir}/test/checkpoints', exist_ok=True)
-            os.makedirs(f'{self.run_info_dir}/test/logs', exist_ok=True)
-            os.makedirs(f'{self.run_info_dir}/test/plots', exist_ok=True)
+            os.makedirs(f'{self.run_info_dir}/test/')
