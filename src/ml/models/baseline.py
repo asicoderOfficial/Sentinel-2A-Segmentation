@@ -1,10 +1,10 @@
 import torch.nn as nn
 
 class Baseline(nn.Module):
-    def __init__(self, input_channels: int):
+    def __init__(self, in_channels: int):
         super(Baseline, self).__init__()
         self.model = nn.Sequential(
-            nn.Conv2d(input_channels, 32, kernel_size=3, padding=1),
+            nn.Conv2d(in_channels, 32, kernel_size=3, padding=1),
             nn.ReLU(),
             nn.Conv2d(32, 64, kernel_size=3, padding=1),
             nn.ReLU(),
