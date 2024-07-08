@@ -1,0 +1,44 @@
+# General configuration
+device: cuda
+seed: 42
+verbose: true
+# Model
+model: 
+  name: baseline
+  parameters:
+    in_channels: 3
+loss: 
+  name: haussdorf
+  parameters: {}
+optimizer:
+  name: Adam
+  parameters:
+    lr: 0.001
+    weight_decay: 0.0001
+# Training
+train:
+  mode:
+    name: density
+    perc: [0.7]
+  data_dir: data/train
+  patches_sizes: [32, 64, 128]
+  hyperparameters:
+    mode: manual
+    batch_size: [32]
+    epochs: [25]
+    lr: [0.01]
+  early_stopping:
+    delta: 0.01
+    patience: 3
+# Validation
+val:
+  metrics:
+    - name: Dice
+  threshold: 0.5
+# Test
+test:
+  data_dir: data/test
+  threshold: 0.5
+# Logging and plotting
+logging:
+  dir: logs
