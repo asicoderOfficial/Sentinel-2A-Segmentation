@@ -8,7 +8,7 @@ from src.ml.loss_functions.hausdorff import HausdorffLoss
 # Training
 EXPERIMENTS_SAVE_DIR = 'runs'
 RANDOM_SEED = 42
-DEFAULT_CONFIG_PATH = 'config/experiments.yml'
+DEFAULT_CONFIG_PATH = 'config/ml_pipeline.yml'
 
 # Data
 NPY_DATA_DIR = 'data/'
